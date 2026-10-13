@@ -1,0 +1,22 @@
+
+# Entorno virtual de Python
+.venv/
+venv/
+env/
+
+# Variables de entorno y contraseñas
+.env
+.env.*
+!.env.example
+
+# Archivos temporales de Python
+__pycache__/
+*.py[cod]
+
+# Herramientas y editores
+.vscode/
+.idea/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
