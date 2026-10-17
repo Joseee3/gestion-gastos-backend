@@ -6,6 +6,7 @@ import jwt
 from jwt import PyJWKClient
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import logging
 
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
@@ -30,6 +31,14 @@ def obtener_usuario_actual(
     token = credenciales.credentials
 
     try:
+        # Diagnóstico: registra solo metadatos del encabezado, nunca el token.
+        header = jwt.get_unverified_header(token)
+        logging.warning(
+            "JWT recibido: alg=%s kid=%s",
+            header.get("alg"),
+            header.get("kid"),
+        )
+
         cliente = obtener_cliente_claves()
         clave = cliente.get_signing_key_from_jwt(token).key
 
@@ -59,7 +68,12 @@ def obtener_usuario_actual(
 
     except HTTPException:
         raise
-    except Exception:
+    except Exception as error:
+        # Registra el tipo de error, sin incluir el token ni el secreto.
+        logging.warning(
+            "Falló la validación JWT: %s",
+            type(error).__name__,
+        )
         raise HTTPException(
             status_code=401,
             detail="Token inválido o expirado",
